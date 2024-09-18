@@ -14,35 +14,57 @@ export class CustomExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    // Check if it's an instance of HttpException
+    // HttpException
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
-      const message = exception.message || 'Internal server error';
+      const responseBody = exception.getResponse();
+      const message =
+        typeof responseBody === 'string'
+          ? responseBody
+          : (responseBody as any).message || 'Internal server error';
 
       return response.status(status).json({
-        status: status,
+        status,
         timestamp: new Date().toISOString(),
-        message: message,
+        message,
+        ...(typeof responseBody !== 'string' ? { details: responseBody } : {}),
       });
     }
 
+    // MongooseError
     if (exception instanceof MongooseError) {
       const status = HttpStatus.BAD_REQUEST;
+      const message = exception.message || 'Database error';
 
       return response.status(status).json({
-        status: status,
+        status,
         timestamp: new Date().toISOString(),
-        message: exception.message,
+        message,
+        details:
+          exception instanceof MongooseError
+            ? this.formatMongooseError(exception)
+            : undefined,
       });
     }
 
-    // Handle other unknown exceptions
+    // Others
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
+    const message = (exception as Error).message || 'Internal server error';
 
     return response.status(status).json({
-      status: status,
+      status,
       timestamp: new Date().toISOString(),
-      message: 'Internal server error',
+      message,
+      details: process.env.NODE_ENV === 'development' ? exception : undefined,
     });
+  }
+
+  private formatMongooseError(error: MongooseError): string {
+    if (error.name === 'ValidationError') {
+      return Object.values((error as any).errors)
+        .map((err: any) => err.message)
+        .join(', ');
+    }
+    return error.message;
   }
 }

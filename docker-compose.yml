@@ -12,6 +12,8 @@ services:
       - mongo
     networks:
       - tictag-backend-network
+    volumes:
+      - ./uploads:/usr/src/app/uploads
 
   mongo:
     image: mongo
