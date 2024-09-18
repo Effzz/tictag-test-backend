@@ -16,9 +16,7 @@ export class ProductsService {
       description: createProductDto.description,
       price: createProductDto.price,
       image: createProductDto.image,
-      warranty_expire_at: createProductDto.warranty_expire_at
-        ? new Date(createProductDto.warranty_expire_at).getTime()
-        : undefined,
+      warranty_expire_at: createProductDto.warranty_expire_at,
     });
     return newProduct.save();
   }

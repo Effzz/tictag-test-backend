@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -14,6 +14,7 @@ export class CreateProductDto {
   @IsString()
   image?: string; // Optional field for the image
 
+  @IsNotEmpty()
   @IsString()
-  readonly warranty_expire_at: string;
+  warranty_expire_at: string;
 }
