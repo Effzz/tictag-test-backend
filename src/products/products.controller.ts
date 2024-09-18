@@ -12,7 +12,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { extname } from 'path';
 import { CreateProductDto } from 'src/dto/products/create-product.dto';
 
 @Controller('products')
@@ -25,7 +25,7 @@ export class ProductsController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: join(__dirname, '..', '..', '..', 'uploads', 'products'),
+        destination: './uploads/products',
         filename: (req, file, callback) => {
           console.log('Original file name:', file.originalname); // Log original file name
           const fileExtension = extname(file.originalname);
